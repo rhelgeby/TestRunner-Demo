@@ -16,8 +16,8 @@ function buildTests()
 			result = document.getElementById("buttonStatus");
 			
 			// Verify that elements were found.
-			assertNotUndefined(button, "button not found");
-			assertNotUndefined(result, "result element not found");
+			assertNotNull(button, "button not found");
+			assertNotNull(result, "result element not found");
 			
 			// Trigger click event.
 			button.click();
@@ -53,7 +53,31 @@ function buildTests()
 			// Get a element thats unique to page 2.
 			var element = document.getElementById("page2");
 			
-			assertNotUndefined(element, "element 'page2' not found");
+			assertNotNull(element, "element 'page2' not found");
+		}
+	]));
+	
+	// This test will change the page, and verify it by getting a element
+	// unique to the new page.
+	simpleTests.addTest(new TestCase("Submit test", "index.html",
+	[
+		function()
+		{
+			var myForm = document.getElementsByTagName("form")[0]; 
+			myForm.submit();
+			
+			// Page is changing. Abort test runner.
+			return false;
+		},
+		function()
+		{
+			// This is phase 2. Test Runner will resume in this phase when the
+			// page in previous phase was changed.
+
+			// Get a element thats unique to page 2.
+			var element = document.getElementById("page2");
+			
+			assertNotNull(element, "element 'page2' not found");
 		}
 	]));
 	
@@ -125,7 +149,7 @@ function init(results)
 	// shorter delays may work fine too.
 	// Note: This delay is added between _each_ test. It could also be used to
 	//       slow down testing speed.
-	setTimeout("eventFallback()", 250);
+	setTimeout("eventFallback()", 150);
 }
 
 function onDeviceReady()
@@ -158,8 +182,8 @@ function run()
 		// Use run to always start testing when the page is loaded.
 		// Use runIfActive to only start if a test session is already running.
 		
-		testRunner.run();			    // Automatic.
-		//testRunner.runIfActive();	    // Manual start.
+		//testRunner.run();			    // Automatic.
+		testRunner.runIfActive();	    // Manual start.
 	}
 }
 
