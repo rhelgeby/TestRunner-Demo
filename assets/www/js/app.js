@@ -23,3 +23,23 @@ function beep(times)
 {
 	navigator.notification.beep(times);
 }
+
+function contactExist(name)
+{
+	// TODO
+	
+	//var options = new ContactFindOptions();
+    //options.filter="Bob"; 
+    //var fields = ["displayName", "name"];
+    //navigator.contacts.find(fields, onSuccess, onError, options);
+	
+	// TODO: Test Runner doesn't support callbacks...
+	
+	return false;
+}
+
+function addContact(name)
+{
+	// TODO
+	console.log("addContact(" + name + ")");
+}

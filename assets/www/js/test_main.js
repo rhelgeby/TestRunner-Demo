@@ -103,6 +103,21 @@ function buildTests()
  		}
  	]));
 	
+	phoneGapTests.addTest(new TestCase("find contact", "index.html",
+	[
+		function()
+		{
+			var txtContact = document.getElementById("txtContact");
+			var btnAddContact = document.getElementById("btnAddContact");
+			assertNotNull(btnAddContact, "Couldn't find btnAddContact.");
+			assertNotNull(txtContact, "Couldn't find txtContact.");
+			
+			txtContact.value = "Test Contact";
+			btnAddContact.click();
+			assertTrue(contactExist(txtContact.value), "Contact doesn't exist.");
+		}
+	]));
+	
 	testSuite = new TestSuite("All tests", [simpleTests, phoneGapTests], beforeTest, afterTest);
 }
 
