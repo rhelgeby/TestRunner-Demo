@@ -35,11 +35,12 @@ function buildTests()
 	// unique to the new page.
 	simpleTests.addTest(new TestCase("Change page", "index.html",
 	[
-		function()
+		function(testRunner)
 		{
 			// Set new URL. When scripts are done, the browser will detect that
 			// the URL was changed and load the new page.
-			window.location.href = "page2.html";
+			//window.location.href = "page2.html";
+			testRunner.loadPage("page2.html");
 			
 			// Abort script. If not aborted it will immediately continue before
 			// the page is changed.
@@ -57,8 +58,6 @@ function buildTests()
 		}
 	]));
 	
-	// This test will change the page, and verify it by getting a element
-	// unique to the new page.
 	simpleTests.addTest(new TestCase("Submit test", "index.html",
 	[
 		function()
@@ -105,7 +104,7 @@ function buildTests()
 	
 	phoneGapTests.addTest(new TestCase("find contact", "index.html",
 	[
-		function()
+		function(testRunner)
 		{
 			var txtContact = document.getElementById("txtContact");
 			var btnAddContact = document.getElementById("btnAddContact");
@@ -114,7 +113,19 @@ function buildTests()
 			
 			txtContact.value = "Test Contact";
 			btnAddContact.click();
-			assertTrue(contactExist(txtContact.value), "Contact doesn't exist.");
+			
+			// Prepare callback wrappers.
+			var onSuccess = testRunner.createCallback(function(contacts)
+			{
+				assertArrayNotEmpty(contacts, "Contact doesn't exist.");
+			});
+			var onError = testRunner.createErrorCallback("Contact doesn't exist.");
+			
+			// Query contact.
+			contactExist(txtContact.value, onSuccess, onError);
+			
+			// Wait for callbacks.
+			return false;
 		}
 	]));
 	
@@ -136,9 +147,6 @@ function afterTest()
 
 // ---- Init ----
 
-// Hook deviceready event in PhoneGap. Native features in PhoneGap cannot be
-// used before this event is fired.
-document.addEventListener("deviceready", onDeviceReady, true);
 var deviceReadyFired = false;
 
 // Whether we're displaying the results this time.
@@ -158,21 +166,33 @@ function init(results)
 	buildTests();
 	prepareRunner();
 	
-	// If the deviceready event isn't fired after a certain time, force init.
-	// We don't know why it isn't always fired, but PhoneGap works after a
-	// certain time. You may experiment with this value. 150ms is safe, but
-	// shorter delays may work fine too.
-	// Note: This delay is added between _each_ test. It could also be used to
-	//       slow down testing speed.
-	setTimeout("eventFallback()", 150);
+	if (isPhoneGapReady())
+	{
+		run();
+	}
+	else
+	{
+		// Wait for PhoneGap to load.
+		document.addEventListener("deviceready", onDeviceReady, false);
+		
+		// If the deviceready event isn't fired after a certain time, force init.
+		setTimeout("eventFallback()", 500);
+	}
+}
+
+function isPhoneGapReady()
+{
+	// Sometimes the deviceready event is fired too fast, before the script adds the event
+	// listener. By checking existence of window.device we know if it's already fired.
+	return typeof window.device !== "undefined";
 }
 
 function onDeviceReady()
 {
+	console.log("Event: deviceready");
 	if (!deviceReadyFired)
 	{
 		deviceReadyFired = true;
-		console.log("DeviceReady fired...");
 		run();
 	}
 }
@@ -181,6 +201,11 @@ function eventFallback()
 {
 	if (!deviceReadyFired)
 	{
+		console.log("Timed out while waiting for deviceready event. Resuming...");
+		
+		// Mark as fired to prevent double call to run method if event is delayed.
+		deviceReadyFired = true;
+		
 		run();
 	}
 }
@@ -198,7 +223,7 @@ function run()
 		// Use runIfActive to only start if a test session is already running.
 		
 		//testRunner.run();			    // Automatic.
-		testRunner.runIfActive();	    // Manual start.
+		testRunner.runIfActive();	    // Manual start (with start button).
 	}
 }
 

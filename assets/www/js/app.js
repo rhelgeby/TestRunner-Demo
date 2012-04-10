@@ -24,22 +24,18 @@ function beep(times)
 	navigator.notification.beep(times);
 }
 
-function contactExist(name)
+function contactExist(name, onSuccess, onError)
 {
-	// TODO
-	
-	//var options = new ContactFindOptions();
-    //options.filter="Bob"; 
-    //var fields = ["displayName", "name"];
-    //navigator.contacts.find(fields, onSuccess, onError, options);
-	
-	// TODO: Test Runner doesn't support callbacks...
-	
-	return false;
+	var options = new ContactFindOptions();
+    options.filter = name; 
+    var fields = ["displayName", "name"];
+    
+    navigator.contacts.find(fields, onSuccess, onError, options);
 }
 
 function addContact(name)
 {
-	// TODO
 	console.log("addContact(" + name + ")");
+	var contact = navigator.contacts.create({"displayName": name});
+	contact.save();
 }
