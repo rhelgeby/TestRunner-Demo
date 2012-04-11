@@ -54,6 +54,37 @@ function buildTests()
 		}
 	]));
 	
+	// This test will use a timer to demonstrate use of callbacks in tests.
+	simpleTests.addTest(new TestCase("Callback example", "index.html",
+	[
+		function(testRunner)
+		{
+			// Create a callback wrapper. Note that this is a global variable
+			// because the expression in setTimeout is evaluated at the global
+			// context.
+			callbackTest = testRunner.createCallback(function(msg)
+			{
+				console.log("Message in callback: " + msg);
+			});
+			
+			console.log("Callback will be called in 2 seconds...");
+			
+			// Call the callback in two seconds. Note the use of quotes.
+			setTimeout("callbackTest('test');", 2000);
+			
+			// If not passing any parameters in the callback, it's also
+			// possible to use the function variable directly, instead of an
+			// expression. In this case the msg parameter will be undefined. 
+			//setTimeout(callbackTest, 2000);
+			
+			return false;
+		},
+		function(testRunner)
+		{
+			console.log("After callback.");
+		}
+	]));
+	
 	// TODO: Apparently the page isn't changed properly with submit.
 	/*
 	simpleTests.addTest(new TestCase("Submit test", "index.html",
