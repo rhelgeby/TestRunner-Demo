@@ -35,7 +35,32 @@ function contactExist(name, onSuccess, onError)
 
 function addContact(name)
 {
-	console.log("addContact(" + name + ")");
 	var contact = navigator.contacts.create({"displayName": name});
 	contact.save();
+}
+
+function verifyContact(name)
+{
+	var status = document.getElementById("contactStatus");
+	status.innerHTML = "Pending...";
+	
+	var onSuccess = function(contacts)
+	{
+		// The query was successful. Check if contact was found.
+		if (contacts.length > 0)
+		{
+			status.innerHTML = "Success.";
+		}
+		else
+		{
+			status.innerHTML = "Failed.";
+		}
+	};
+	
+	var onError = function()
+	{
+		status.innerHTML = "Query failed.";
+	};
+	
+	contactExist(name, onSuccess, onError);
 }

@@ -1,7 +1,8 @@
-//asserts.js
-//Tor Magnus Rakv�g
+// Test Runner Assertion Functions
+// Tor Magnus Rakvåg
 
-//Based (sort of) on jstestrunner Asserts.js
+// Credits/Sources:
+// JsTestDriver
 
 var fail = function AssertionException(msg) {
 	var err = new Error(msg);
@@ -64,6 +65,18 @@ function assertTrue(actual, msg) {
 function assertFalse(actual, msg) {
 	if (actual != false) {
 		fail(typeof msg === 'undefined' ? 'Expected false but was ' + actual : msg);
+	}
+}
+
+function assertEquals(actual, expected, msg) {
+	if (actual != expected) {
+		fail(typeof msg === 'undefined' ? 'Expected ' + expected + ' but was ' + actual : msg);
+	}
+}
+
+function assertNotEquals(actual, expected, msg) {
+	if (actual == expected) {
+		fail(typeof msg === 'undefined' ? 'Expected ' + expected + ' but was ' + actual : msg);
 	}
 }
 
@@ -625,8 +638,7 @@ TestRunner.prototype.loadPage = function(url)
 {
 	// Check if using PhoneGap. Loading a page must be done through PhoneGap's API, or it won't
 	// load properly on the new page.
-	//if (navigator.userAgent.toLowerCase().match(/android/))
-	if (typeof window.device !== "undefined")
+	if (typeof cordova !== "undefined")
 	{
 		console.log("Using PhoneGap to change page...");
 		
@@ -659,7 +671,7 @@ TestRunner.prototype.loadInitialPage = function(testCase)
 		throw "Invalid test case.";
 	}
 	
-	console.log("Loading initial page for test case " + testCase.name + ": " + testCase.page);
+	console.log("Loading initial page for test case '" + testCase.name + "': " + testCase.page);
 	
 	this.pageChanged = true;
 	this.loadPage(testCase.page);
@@ -1014,14 +1026,17 @@ TestRunner.prototype.createNoOpCallback = function()
  */
 TestRunner.prototype.showResults = function()
 {
-	window.location.href = this.resultPage;
+	this.loadPage(this.resultPage);
 }
 
 /**
  * Builds test results in the element named "results".
  */
 TestRunner.prototype.buildResults = function()
-{	
+{
+	// TODO: This method doesn't need to be a part of TestRunner. All results are stored in the
+	//		 session storage. Statistics can be calculated when iterating the results.
+	
 	var element = document.getElementById("results");
 	var collection = null;
 	var startTable = true;
