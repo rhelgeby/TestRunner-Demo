@@ -1,5 +1,44 @@
-// Test source. Builds tests and initializes Test Runner.
+/**
+ * This function should be called when the page is loaded (onload event). 
+ */
+function initTesting(alwaysStart)
+{
+	if (typeof alwaysStart == 'undefined')
+	{
+		alwaysStart = true;
+	}
+	
+	// (global var)
+	testRunnerStarter = new TestRunnerStarter(
+			buildTests(),	// testSuite
+			alwaysStart,	// alwaysStart
+			false,			// showResults
+			150);			// eventFallbackDelay
+			//10000);		// callbackTimeout (optional, defaults to 10 seconds.)
+}
 
+/**
+ * This function is only used by the test result page.
+ */
+function initTestResults()
+{
+	// TODO: Make this part independent of Test Runner so it doesn't have to
+	//		 build tests that are never used.
+	
+	// (global var)
+	testRunnerStarter = new TestRunnerStarter(
+			buildTests(),	// testSuite
+			false,			// alwaysStart
+			true,			// showResults
+			150);			// eventFallbackDelay
+			//10000);		// callbackTimeout (optional, defaults to 10 seconds.)
+}
+
+/**
+ * Called when tests should be built.
+ * 
+ * @returns		Test suite to use.
+ */
 function buildTests()
 {
     var simpleTests = new TestCollection("Main Collection");
@@ -158,8 +197,8 @@ function buildTests()
 		}
 	]));
 	
-	testSuite = new TestSuite("All tests", [simpleTests, phoneGapTests], beforeTest, afterTest);
-	//testSuite = new TestSuite("All tests", [simpleTests], beforeTest, afterTest);
+	return new TestSuite("All tests", [simpleTests, phoneGapTests], beforeTest, afterTest);
+	//return new TestSuite("All tests", [simpleTests], beforeTest, afterTest);
 }
 
 // Called before every test.
@@ -172,93 +211,4 @@ function beforeTest()
 function afterTest()
 {
 	console.log("'afterTest' executed");
-}
-
-
-// ---- Init ----
-
-var deviceReadyFired = false;
-
-// Whether we're displaying the results this time.
-var displayResults = false;
-
-/**
- * Initialize tests and Test Runner.
- * 
- * @param results	Whether results should be displayed (boolean). This
- * 					parameter is only used by the result page. Regular
- * 					pages don't need to pass this parameter.
- */
-function init(results)
-{
-	displayResults = results;
-	
-	buildTests();
-	prepareRunner();
-	
-	if (isPhoneGapReady())
-	{
-		run();
-	}
-	else
-	{
-		// Wait for PhoneGap to load.
-		document.addEventListener("deviceready", onDeviceReady, false);
-		
-		// If the deviceready event isn't fired after a certain time, force init.
-		setTimeout("eventFallback()", 500);
-	}
-}
-
-function isPhoneGapReady()
-{
-	// Sometimes the deviceready event is fired too fast, before the script adds the event
-	// listener. By checking existence of window.device we know if it's already fired.
-	return typeof window.device !== "undefined";
-}
-
-function onDeviceReady()
-{
-	console.log("Event: deviceready");
-	if (!deviceReadyFired)
-	{
-		deviceReadyFired = true;
-		run();
-	}
-}
-
-function eventFallback()
-{
-	if (!deviceReadyFired)
-	{
-		console.log("Timed out while waiting for deviceready event. Resuming...");
-		
-		// Mark as fired to prevent double call to run method if event is delayed.
-		deviceReadyFired = true;
-		
-		run();
-	}
-}
-
-function run()
-{
-    // Display results if testing is done.
-	if (displayResults)
-	{
-		testRunner.buildResults();
-	}
-	else
-	{
-		// Use run to always start testing when the page is loaded.
-		// Use runIfActive to only start if a test session is already running.
-		
-		//testRunner.run();			    // Automatic.
-		testRunner.runIfActive();	    // Manual start (with start button).
-	}
-}
-
-function prepareRunner()
-{
-	testRunner = new TestRunner(testSuite, "test_results.html");
-	console.log("TestRunner ready on page " + window.location.href);
 }
