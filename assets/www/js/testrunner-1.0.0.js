@@ -886,7 +886,7 @@ TestRunner.prototype.runTest = function(testCase)
 			var _testRunner = this;
 			var handler = function()
 			{
-				console.log("No callbacks called. Resuming testing.");
+				console.log("Timed out while waiting for callbacks. Resuming testing.");
 				
 				// Fail test.
 				_testRunner.failTest(testCase, "No callbacks called.");
@@ -1147,7 +1147,7 @@ TestRunner.prototype.buildResults = function()
 // Richard Helgeby
 
 /**
- * Initializes tests and and starts Test Runner.
+ * Initializes Test Runner.
  * 
  * @param testSuite		Test suite to use (TestSuite object).
  * @param alwaysStart	Whether testing should always start (true), or just if
@@ -1189,7 +1189,7 @@ function TestRunnerStarter(testSuite, alwaysStart, showResults, eventFallbackDel
 	// deviceready event).
 	if (!this.isPhoneGapAvailable())
 	{
-		this.run();
+		this.run(this.alwaysStart);
 	}
 	else
 	{
@@ -1197,7 +1197,7 @@ function TestRunnerStarter(testSuite, alwaysStart, showResults, eventFallbackDel
 		// is loaded, this happens sometimes).
 		if (this.isPhoneGapReady())
 		{
-			this.run();
+			this.run(this.alwaysStart);
 		}
 		else
 		{
@@ -1248,7 +1248,7 @@ TestRunnerStarter.prototype.onDeviceReady = function()
 	if (!this.deviceReadyFired)
 	{
 		this.deviceReadyFired = true;
-		this.run();
+		this.run(this.alwaysStart);
 	}
 }
 
@@ -1266,7 +1266,7 @@ TestRunnerStarter.prototype.eventFallback = function()
 		// just delayed.
 		this.deviceReadyFired = true;
 		
-		this.run();
+		this.run(this.alwaysStart);
 	}
 }
 
@@ -1276,13 +1276,16 @@ TestRunnerStarter.prototype.eventFallback = function()
 TestRunnerStarter.prototype.prepareRunner = function()
 {
 	this.runner = new TestRunner(this.testSuite, "test_results.html", this.callbackTimeout);
-	console.log("TestRunner ready on page " + window.location.href);
+	//console.log("TestRunner ready on page " + window.location.href);
 }
 
 /**
- * Starts testing.
+ * Starts the test runner. This is called by the constructor by default.
+ * 
+ * @param alwaysStart	Whether testing should always start. Passing false will
+ * 						only start the test runner if a test session is active.
  */
-TestRunnerStarter.prototype.run = function()
+TestRunnerStarter.prototype.run = function(alwaysStart)
 {
     // Display results if testing is done.
 	if (this.displayResults)
@@ -1292,7 +1295,7 @@ TestRunnerStarter.prototype.run = function()
 	}
 	else
 	{
-		if (this.alwaysStart)
+		if (alwaysStart)
 		{
 			// Always start.
 			this.runner.run();
